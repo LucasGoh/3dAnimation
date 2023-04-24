@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-import math
+from math import *
 
 WHITE = (255, 255, 255)
 RED = (255, 0 ,0)
@@ -14,6 +14,9 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 scale = 100
 
 circle_pos = [WIDTH/2, HEIGHT/2]
+
+angle = 0
+
 points = []
 
 points.append(np.matrix([-1, -1, 1]))
@@ -29,7 +32,11 @@ projection_matrix = np.matrix([
     [1, 0, 0],
     [0, 1, 0]
 ])
+
+clock = pygame.time.Clock()
 while True:
+
+    clock.tick(6)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -42,11 +49,33 @@ while True:
 
     # update stuff
 
+    rotation_z = np.matrix([
+        [cos(angle), -sin(angle), 0],
+        [sin(angle), cos(angle), 0],
+        [0, 0, 1]
+    ])
+    rotation_y = np.matrix([
+        [cos(angle), 0, sin(angle)],
+        [0, 1, 0],
+        [-sin(angle), 0, cos(angle)],
+    ])
+
+    rotation_x = np.matrix([
+        [1, 0, 0],
+        [0, cos(angle), -sin(angle)],
+        [0, sin(angle), cos(angle)],
+    ])
+    angle += 0.1
+
     screen.fill(WHITE)
     # drawing stuff
 
     for point in points:
-        projected2d = np.dot(projection_matrix, point.reshape((3, 1)))
+        rotated2d = np.dot(rotation_z, point.reshape((3, 1)))
+        rotated2d = np.dot(rotation_y, rotated2d)
+        rotated2d = np.dot(rotation_x, rotated2d)
+
+        projected2d = np.dot(projection_matrix, rotated2d)
 
         x = int(projected2d[0][0] * scale) + circle_pos[0]
         y = int(projected2d[1][0] * scale) + circle_pos[1]
