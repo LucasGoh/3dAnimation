@@ -28,10 +28,8 @@ points.append(np.matrix([1, -1, -1]))
 points.append(np.matrix([1, 1, -1]))
 points.append(np.matrix([-1, 1, -1]))
 
-projection_matrix = np.matrix([
-    [1, 0, 0],
-    [0, 1, 0]
-])
+projection_scale = 1;
+
 
 # contains positions of all the projected points 
 projected_points = [
@@ -53,6 +51,10 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 exit()
+            if event.key == pygame.K_0:
+                projection_scale += 0.5
+            if event.key == pygame.K_9:
+                projection_scale -= 0.5
 
 
     # update stuff
@@ -80,6 +82,11 @@ while True:
 
     # drawing stuff
     
+    projection_matrix = np.matrix([
+        [projection_scale, 0, 0],
+        [0, projection_scale, 0]
+    ])
+
     i = 0
     for point in points:
         # applying rotation matrix
