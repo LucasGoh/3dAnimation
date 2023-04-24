@@ -33,6 +33,14 @@ projection_matrix = np.matrix([
     [0, 1, 0]
 ])
 
+# contains positions of all the projected points 
+projected_points = [
+    [n, n] for n in range(len(points))
+]
+
+def connect_points(i, j, points):
+    pygame.draw.line(screen, BLACK, (points[i][0], points[i][1]), (points[j][0], points[j][1]))
+
 clock = pygame.time.Clock()
 while True:
 
@@ -48,6 +56,7 @@ while True:
 
 
     # update stuff
+    # rotation matrix
 
     rotation_z = np.matrix([
         [cos(angle), -sin(angle), 0],
@@ -68,9 +77,12 @@ while True:
     angle += 0.1
 
     screen.fill(WHITE)
-    # drawing stuff
 
+    # drawing stuff
+    
+    i = 0
     for point in points:
+        # applying rotation matrix
         rotated2d = np.dot(rotation_z, point.reshape((3, 1)))
         rotated2d = np.dot(rotation_y, rotated2d)
         rotated2d = np.dot(rotation_x, rotated2d)
@@ -79,6 +91,15 @@ while True:
 
         x = int(projected2d[0][0] * scale) + circle_pos[0]
         y = int(projected2d[1][0] * scale) + circle_pos[1]
-        pygame.draw.circle(screen, BLACK, (x,y), 5)
+
+        projected_points[i] =[int(x), int(y)]
+        pygame.draw.circle(screen, RED, (x,y), 5)
+        i += 1
+    
+    # connect points
+    for p in range(4):
+            connect_points(p, (p+1) % 4, projected_points)
+            connect_points(p+4, ((p+1) % 4) + 4, projected_points)
+            connect_points(p, (p+4), projected_points)
 
     pygame.display.update()
